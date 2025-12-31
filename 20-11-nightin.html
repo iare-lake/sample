@@ -1,0 +1,1628 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>IARE Lake</title>
+    <link rel="icon" type="image/x-icon" href="https://i.ibb.co/Lb42xRg/image-removebg-preview.png">
+    <!-- Font Awesome for icons -->
+    <link
+      rel="stylesheet"
+
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+    />
+    <script src="https://vpkx6f.mimo.run/script.js">
+
+    </script>
+    <!-- Alert removed from here. Logic moved to bottom script for better control -->
+    <style>
+      :root {
+        --accent: #0b6efd;
+        --muted: #6b7280;
+        --bg: #f6f8fb;
+        --danger: #dc3545;
+        --success: #28a745;
+        --warning: #ffc107;
+      }
+      html,
+      body {
+        height: 100%;
+        margin: 0;
+        font-family:
+          Inter,
+          system-ui,
+          Segoe UI,
+          Roboto,
+          Helvetica,
+          Arial,
+          sans-serif;
+        background: var(--bg);
+      }
+      .wrap {
+        min-height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 32px;
+        position: relative;
+      }
+      .card {
+        width: 960px;
+        max-width: 100%;
+        display: grid;
+        grid-template-columns: 1fr 420px;
+        background: #fff;
+        border-radius: 12px;
+        box-shadow: 0 10px 30px rgba(2, 6, 23, 0.08);
+        overflow: hidden;
+        transition:
+          grid-template-columns 0.3s ease,
+          width 0.3s ease;
+      }
+      .card.logged-in {
+        grid-template-columns: 280px 1fr;
+        width: 100%;
+        max-width: 1200px;
+      }
+      .left {
+        padding: 40px;
+        background: linear-gradient(180deg, #0b6efd22, transparent);
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        position: sticky;
+        top: 0;
+        height: 100vh;
+        overflow-y: auto;
+      }
+      .left .menu-links {
+        margin-top: 20px;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+      .menu-links .generator-link {
+        padding: 10px;
+        border-radius: 8px;
+        cursor: pointer;
+        font-weight: 500;
+        transition: background 0.2s;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+      .menu-links .generator-link:hover,
+      .menu-links .generator-link.active {
+        background: rgba(11, 110, 253, 0.1);
+        color: var(--accent);
+      }
+      .brand {
+        font-weight: 700;
+        color: var(--accent);
+        font-size: 40px;
+      }
+      .h1 {
+        font-size: 22px;
+        font-weight: 700;
+        margin-top: 6px;
+      }
+      .lead {
+        color: var(--muted);
+        max-width: 44ch;
+      }
+      .right {
+        padding: 28px;
+        overflow-y: auto;
+        height: calc(100vh - 56px);
+      }
+      .tabs {
+        display: flex;
+        gap: 12px;
+        margin-bottom: 18px;
+      }
+      .tab {
+        padding: 8px 14px;
+        border-radius: 8px;
+        cursor: pointer;
+        border: 1px solid transparent;
+        font-weight: 500;
+      }
+      .tab.active {
+        background: var(--accent);
+        color: #fff;
+      }
+      form {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+      }
+      label {
+        font-size: 13px;
+        color: #222;
+        font-weight: 500;
+      }
+      .muted {
+        color: var(--muted);
+        font-size: 13px;
+      }
+      .note {
+        font-size: 13px;
+        color: #666;
+      }
+      input,
+      select,
+      textarea {
+        padding: 10px 12px;
+        border: 1px solid #e6e9ef;
+        border-radius: 8px;
+        font-size: 14px;
+        width: 100%;
+        box-sizing: border-box;
+        background: #fff;
+        transition:
+          box-shadow 0.2s ease,
+          border-color 0.2s ease;
+        font-family: inherit;
+      }
+      input:focus,
+      select:focus,
+      textarea:focus {
+        outline: none;
+        border-color: var(--accent);
+        box-shadow: 0 0 0 3px rgba(11, 110, 253, 0.2);
+      }
+      .btn,
+      .link-btn,
+      .copy-btn {
+        padding: 10px 14px;
+        border-radius: 10px;
+        border: none;
+        cursor: pointer;
+        font-weight: 600;
+        transition:
+          transform 0.15s ease,
+          box-shadow 0.15s ease;
+        text-decoration: none;
+        display: inline-block;
+        text-align: center;
+      }
+      .btn {
+        background: var(--accent);
+        color: #fff;
+        box-shadow: 0 4px 10px rgba(11, 110, 253, 0.3);
+      }
+      .btn:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 6px 15px rgba(11, 110, 253, 0.4);
+      }
+      .btn:active {
+        transform: translateY(0);
+        box-shadow: 0 2px 5px rgba(11, 110, 253, 0.2);
+      }
+      .link-btn {
+        background: linear-gradient(90deg, #06c167, #08b07a);
+        color: #fff;
+        box-shadow: 0 4px 10px rgba(6, 193, 103, 0.3);
+      }
+      .link-btn:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 6px 15px rgba(6, 193, 103, 0.4);
+      }
+      .copy-btn {
+        background: #f8f9fa;
+        color: #343a40;
+        border: 1px solid #ced4da;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+      }
+      .copy-btn:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      }
+      .photo-table-wrap table,
+      .att-results-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 14px;
+        margin-top: 20px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        background: #ffffff;
+        border-radius: 8px;
+        overflow: hidden;
+      }
+      .photo-table-wrap th,
+      .att-results-table th {
+        text-align: left;
+        background: #e9ecef;
+        color: #495057;
+        padding: 12px 10px;
+        border-bottom: 2px solid #dee2e6;
+      }
+      .photo-table-wrap td,
+      .att-results-table td {
+        padding: 10px 10px;
+        border-bottom: 1px solid #f1f1f1;
+        vertical-align: middle;
+      }
+      .photo-table-wrap tbody tr:nth-child(even),
+      .att-results-table tbody tr:nth-child(even) {
+        background: #f8f9fa;
+      }
+      .photo-table-wrap tbody tr:hover,
+      .att-results-table tbody tr:hover {
+        background: #e6f7ff;
+      }
+      .thumb {
+        width: 64px;
+        height: 64px;
+        object-fit: cover;
+        border: 2px solid var(--accent);
+        border-radius: 6px;
+      }
+      .thumbPlaceholder {
+        width: 64px;
+        height: 64px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background: #f5f5f5;
+        color: #999;
+        border: 1px solid #eee;
+        border-radius: 6px;
+        font-size: 12px;
+      }
+      .note-small {
+        background: linear-gradient(
+          90deg,
+          #ff004c,
+          #ff7300,
+          #ffef00,
+          #00c853,
+          #00b0ff,
+          #7c4dff,
+          #ff0080
+        );
+        background-size: 400% 400%;
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+        animation: rainbowShift 4s linear infinite;
+        font-weight: 700;
+        text-shadow: 0 1px 0 rgba(255, 255, 255, 0.06);
+      }
+      @keyframes rainbowShift {
+        0% {
+          background-position: 0% 50%;
+        }
+        50% {
+          background-position: 100% 50%;
+        }
+        100% {
+          background-position: 0% 50%;
+        }
+      }
+      .menu-toggle {
+        display: none;
+        position: fixed;
+        top: 15px;
+        left: 15px;
+        width: 40px;
+        height: 40px;
+        background: var(--accent);
+        border-radius: 8px;
+        cursor: pointer;
+        z-index: 1001;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        color: #fff;
+        font-size: 24px;
+        line-height: 0;
+      }
+      .overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 999;
+      }
+      .overlay.active {
+        display: block;
+      }
+      @media (max-width: 880px) {
+        .card {
+          width: 100%;
+          grid-template-columns: 1fr;
+          padding: 0;
+        }
+        .card.logged-in {
+          width: 100%;
+          grid-template-columns: 1fr;
+        }
+        .wrap {
+          padding: 0;
+        }
+        .left {
+          position: fixed;
+          top: 0;
+          left: -300px;
+          width: 280px;
+          height: 100%;
+          background: #fff;
+          box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+          transition: left 0.3s ease-in-out;
+          z-index: 1000;
+          padding-top: 60px;
+          box-sizing: border-box;
+        }
+        .left.sidebar-open {
+          left: 0;
+        }
+        .menu-toggle {
+          display: flex;
+        }
+        .right {
+          height: 100vh;
+          border-radius: 0;
+        }
+        .photo-form-grid,
+        .lab-form {
+          grid-template-columns: 1fr !important;
+        }
+      }
+      .ticker-wrap {
+        width: 100%;
+        overflow: hidden;
+        background-color: #fff3cd;
+        padding-left: 100%;
+        box-sizing: content-box;
+        border-radius: 4px;
+        margin-bottom: 15px;
+        border: 1px solid #ffeeba;
+      }
+      .ticker {
+        display: inline-block;
+        height: 30px;
+        line-height: 30px;
+        white-space: nowrap;
+        padding-right: 100%;
+        box-sizing: content-box;
+        animation: ticker 20s linear infinite;
+        color: #856404;
+        font-weight: 600;
+        font-size: 13px;
+      }
+      @keyframes ticker {
+        0% {
+          transform: translate3d(0, 0, 0);
+        }
+        100% {
+          transform: translate3d(-100%, 0, 0);
+        }
+      }
+      .att-rows-container {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        max-height: 350px;
+        overflow-y: auto;
+        padding: 5px;
+        border: 1px solid #eee;
+        border-radius: 8px;
+      }
+      .att-row {
+        display: grid;
+        grid-template-columns: 2fr 1fr 1fr;
+        gap: 10px;
+        align-items: center;
+        background: #f9fafb;
+        padding: 10px;
+        border-radius: 6px;
+      }
+      .att-row label {
+        font-size: 11px;
+        color: var(--muted);
+        margin-bottom: 4px;
+        display: block;
+      }
+      .status-badge {
+        padding: 4px 8px;
+        border-radius: 12px;
+        color: #fff;
+        font-size: 12px;
+        font-weight: 600;
+      }
+      .status-ok {
+        background-color: var(--success);
+      }
+      .status-danger {
+        background-color: var(--danger);
+      }
+      .help-modal-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.6);
+        z-index: 2000;
+        align-items: center;
+        justify-content: center;
+      }
+      .help-modal-content {
+        background: #fff;
+        padding: 25px;
+        border-radius: 12px;
+        box-shadow: 0 10px 30px rgba(2, 6, 23, 0.2);
+        width: 400px;
+        max-width: 90%;
+        position: relative;
+      }
+      .help-close-btn {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        background: none;
+        border: none;
+        font-size: 24px;
+        cursor: pointer;
+        color: var(--muted);
+      }
+      .profile-pic {
+        width: 120px;
+        height: 120px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 4px solid var(--accent);
+        margin-bottom: 15px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      }
+      .profile-card p {
+        font-size: 16px;
+        border-bottom: 1px solid #f1f1f1;
+        padding-bottom: 8px;
+        margin-bottom: 8px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="overlay" id="mobileOverlay"></div>
+    <div class="wrap">
+      <div class="menu-toggle" id="menuToggle">
+        <i class="fa-solid fa-bars"></i>
+      </div>
+
+      <div class="card" role="main" id="mainCard">
+        <div class="left" id="sidebarMenu">
+          <div class="brand">IARE LAKE</div>
+          <div class="h1">Resource Portal</div>
+          <div class="lead">Sign in to access tools.</div>
+          <div class="menu-links">
+            <div
+              class="generator-link"
+              id="mobile-lab-link"
+              onclick="showGenerator('labGenerator')"
+            >
+              <i class="fa-solid fa-book"></i><span>Workbook</span>
+            </div>
+            <div
+              class="generator-link"
+              id="mobile-photo-link"
+              onclick="showGenerator('photoGenerator')"
+            >
+              <i class="fa-solid fa-camera-retro"></i><span>Photos</span>
+            </div>
+            <div
+              class="generator-link"
+              id="mobile-attendance-link"
+              onclick="showGenerator('attendanceGenerator')"
+            >
+              <i class="fa-solid fa-person-chalkboard"></i
+              ><span>Attendance</span>
+            </div>
+            <div
+              class="generator-link"
+              id="mobile-profile-link"
+              onclick="showGenerator('profileSection')"
+            >
+              <i class="fa-solid fa-user"></i><span>Profile</span>
+            </div>
+            <div
+              class="generator-link"
+              id="mobile-search-link"
+              onclick="showGenerator('searchFriend')"
+              style="display:none"
+            >
+              <i class="fa-solid fa-magnifying-glass"></i><span>Search Friend</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="right">
+          <div
+            class="header-area"
+            style="
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
+            "
+          >
+            <div class="tabs">
+                 <img src="https://i.ibb.co/Lb42xRg/image-removebg-preview.png" alt="I-L" style="width: 5em; height: 5em;position:fixed;right:2%;top:2%;">
+              <div id="tabSignIn" class="tab active">Sign in</div>
+              <div id="tabMain" class="tab">Main</div>
+            </div>
+          </div>
+          <div
+            id="messages"
+            style="min-height: 20px; margin-top: 8px; font-weight: 500"
+          ></div>
+
+          <div id="signin">
+            <form id="formSignIn">
+              <label for="si_roll">Roll No</label>
+              <input
+                id="si_roll"
+                type="text"
+                required
+                placeholder="25951A0000"
+                pattern="[25951]{5}[Aa][0-9A-Z]{4,5}"
+                title="e.g., 25951A0505"
+              />
+              <label for="si_password">Password</label>
+              <input
+                id="si_password"
+                type="password"
+                required
+                placeholder="Your password"
+              />
+              <div
+                style="
+                  display: flex;
+                  justify-content: space-between;
+                  align-items: center;
+                  margin-top: 6px;
+                "
+              >
+                <div class="note">Sign in to continue.</div>
+                <button class="btn" type="submit">Sign in</button>
+              </div>
+            </form>
+            <hr
+              style="margin: 18px 0; border: none; border-top: 1px solid #eee"
+            />
+            <p class="muted" style="text-align: center">
+              Don't have an account?
+            </p>
+            <a
+              href="https://vpkx6f.mimo.run/Signup.html"
+              class="btn"
+              style="
+                display: block;
+                text-align: center;
+                background-color: #28a745;
+              "
+              >Create Account</a
+            >
+            <br>
+             <p class="muted" style="text-align: center">
+              Facing problem DM us on <a href="https://www.instagram.com/iare_lake/">instagram.</a>
+            </p>
+          </div>
+
+          <div id="mainView" style="display: none; padding-top: 8px">
+            <div
+              style="
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 10px;
+              "
+            >
+           
+              <div  class="brand">IARE LAKE</div>
+              <button
+                id="signOutBtn"
+                class="btn"
+                style="background: var(--danger)"
+              >
+                Sign out
+              </button>
+            </div>
+            <div style="margin-bottom: 10px;">Welcome, <strong id="welcomeName"></strong></div>
+
+            <section id="labGenerator">
+              <h2>Lab Worksheet / Workbook Link Generator</h2>
+              <p class="note-small">
+                You can also access worksheets of others.
+              </p>
+              <form
+                id="labForm"
+                class="lab-form"
+                style="
+                  display: grid;
+                  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+                  gap: 10px;
+                "
+              >
+                <div>
+                  <label for="lab_usn">Roll Number:</label>
+                  <input
+                    id="lab_usn"
+                    type="text"
+                    placeholder="25951A0000"
+                    required
+                    pattern="[0-9]{5}[Aa][0-9A-Z]{4,5}"
+                  />
+                </div>
+                <div>
+                  <label for="lab_subject">Subject</label>
+                  <select id="lab_subject" required>
+                    <option value="">--Select Subject--</option>
+                    <!-- <option value="ACSE01">ACSE01</option>
+                    <option value="ACSE02">ACSE02</option> -->
+                    <option value="ACSE03">ACSE03 - OOPS</option>
+                    <option value="ACSE04">ACSE04 - FEWDL</option>
+                    <option value="AHSE05">AHSE05 - EPL (PHY) </option>
+                    <option value="AHSE06">AHSE06 - ECL (CHEM) </option>
+                    <option value="AHSE07">AHSE07 - ELCSL</option>
+                    <option value="AMEE03">AMEE03 - CAEG</option>
+                  </select>
+                </div>
+                <div>
+                  <label for="lab_week">Week</label>
+                  <select id="lab_week" required>
+                    <option value="">--Select Week--</option>
+                    <script>
+                      for (let i = 1; i <= 12; i++)
+                        document.write(
+                          `<option value="${i}">Week ${i}</option>`,
+                        );
+                    </script>
+                  </select>
+                </div>
+                <div style="align-self: end">
+                  <div style="display: flex; gap: 8px">
+                    <button id="labGenerate" class="link-btn" type="button">
+                      Generate
+                    </button>
+                    <button
+                      id="labOpen"
+                      class="link-btn"
+                      type="button"
+                      style="display: none"
+                    >
+                      Open
+                    </button>
+                    <button
+                      id="labCopy"
+                      class="copy-btn"
+                      type="button"
+                      style="display: none"
+                    >
+                      Copy
+                    </button>
+                  </div>
+                </div>
+              </form>
+            </section>
+
+            <section id="photoGenerator" style="display: none">
+              <h2>Profile Photo Extractor (Range)</h2>
+              <p class="note">
+                Generates photo links for a range of Roll Numbers. Max: 5000.
+              </p>
+              <form
+                id="photoForm"
+                class="photo-form-grid"
+                style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px"
+              >
+                <div>
+                  <label for="photo_start">Start Roll No:</label>
+                  <input
+                    type="text"
+                    id="photo_start"
+                    required
+                    placeholder="25951A6600"
+                    pattern="[0-9]{5}[Aa][0-9A-Z]{4,5}"
+                  />
+                </div>
+                <div>
+                  <label for="photo_end">End Roll No:</label>
+                  <input
+                    type="text"
+                    id="photo_end"
+                    required
+                    placeholder="25951A66K5"
+                    pattern="[0-9]{5}[Aa][0-9A-Z]{4,5}"
+                  />
+                </div>
+                <div style="grid-column: 1 / -1; display: flex; gap: 8px">
+                  <button type="submit" class="link-btn">Generate Table</button>
+                  <button type="button" id="photoClear" class="copy-btn">
+                    Clear
+                  </button>
+                </div>
+              </form>
+              <div id="photoTableWrap" class="photo-table-wrap"></div>
+            </section>
+
+            <section id="attendanceGenerator" style="display: none">
+              <h2>Subject Attendance Increase Guide</h2>
+              <div class="ticker-wrap">
+                <div class="ticker">
+                  DISCLAIMER: This is a calculator for guidance and won't work
+                  with the Samvidha API. Please verify with your official
+                  portal.
+                </div>
+              </div>
+              <div class="att-form-full">
+                <div>
+                  <label for="att_num_subjects" style="font-weight: 600"
+                    >Number of subjects (1-12):</label
+                  >
+                  <select id="att_num_subjects" style="max-width: 150px">
+                    <script>
+                      for (let i = 1; i <= 12; i++)
+                        document.write(
+                          `<option value="${i}" ${i === 5 ? "selected" : ""}>${i}</option>`,
+                        );
+                    </script>
+                  </select>
+                </div>
+                <div
+                  id="att_rows_container"
+                  class="att-rows-container"
+                  style="margin-top: 15px"
+                ></div>
+                <button
+                  id="attGuideMe"
+                  class="link-btn"
+                  style="
+                    width: 100%;
+                    justify-content: center;
+                    font-size: 16px;
+                    margin-top: 15px;
+                  "
+                >
+                  Guide Me
+                </button>
+              </div>
+              <div id="attResultsArea" style="display: none; margin-top: 20px">
+                <table class="att-results-table">
+                  <thead>
+                    <tr>
+                      <th>Subject</th>
+                      <th>Current %</th>
+                      <th>Status</th>
+                      <th>Guide (to reach 75%)</th>
+                    </tr>
+                  </thead>
+                  <tbody id="attResultsBody"></tbody>
+                </table>
+                <div
+                  id="attOverallStats"
+                  style="
+                    display: none;
+                    padding: 10px;
+                    margin-top: 15px;
+                    border-radius: 8px;
+                    font-weight: 600;
+                    text-align: center;
+                  "
+                ></div>
+              </div>
+            </section>
+
+            <section id="searchFriend" style="display: none">
+              <h2>Search Your Friend</h2>
+              <p class="note">
+                Enter a roll number to see details, or find a roll number by name.
+              </p>
+
+              <!-- NEW: Search by Name Section -->
+              <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; border: 1px solid #e9ecef; margin-bottom: 20px;">
+                <h4 style="margin:0 0 10px 0; font-size: 16px; color: var(--accent);">Step 1: Find Roll No by Name</h4>
+                <form id="searchNameForm" style="display:flex; gap:8px; align-items:center;">
+                    <input id="search_name_input" placeholder="Enter Name (e.g., Rahul)" required />
+                    <button type="submit" class="link-btn">Find</button>
+                </form>
+                <div id="searchNameResult" style="margin-top: 15px;"></div>
+              </div>
+
+              <hr style="border:none; border-top:1px dashed #ccc; margin: 20px 0;" />
+
+              <!-- Existing Search by Roll No Section -->
+              <h4 style="margin:0 0 10px 0; font-size: 16px; color: var(--accent);">Step 2: Search Details by Roll No</h4>
+              <form id="searchForm" style="display:flex; gap:8px; align-items:center; margin-bottom:12px">
+                <input id="search_roll" placeholder="25951A6606" pattern="[0-9]{5}[Aa][0-9A-Z]{4,5}" />
+                <button type="submit" class="link-btn">Search</button>
+                <button type="button" id="searchClear" class="copy-btn">Clear</button>
+              </form>
+              <div id="searchResult"></div>
+            </section>
+
+            <section id="profileSection" style="display: none">
+              <h2>My Profile</h2>
+              <div
+                class="profile-card"
+                style="
+                  background: #fff;
+                  padding: 25px;
+                  border-radius: 10px;
+                  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+                  max-width: 450px;
+                "
+              >
+                <img
+                  id="profilePic"
+                  src=""
+                  class="profile-pic"
+                  onerror="this.outerHTML='<div class=\\'thumbPlaceholder\\' style=\\'width:120px;height:120px;border-radius:50%;\\'>No Image</div>'"
+                />
+                <p><strong>Roll No:</strong> <span id="profileRoll"></span></p>
+                <p><strong>Name:</strong> <span id="profileName"></span></p>
+                <p><strong>Email:</strong> <span id="profileEmail"></span></p>
+                <p><strong>Phone:</strong> <span id="profilePhone"></span></p>
+                <p>
+                  <strong>Instagram:</strong>
+                  <span id="profileInsta"></span>
+                </p>
+              </div>
+            </section>
+
+            <hr
+              style="
+                margin: 25px 0 18px 0;
+                border: none;
+                border-top: 1px solid #eee;
+              "
+            />
+            <div class="muted" style="font-size: 12px">
+             Built for Helping others to Find and use Data.
+            </div>
+            <button
+              id="helpBtn"
+              class="btn"
+              style="background-color: #6c757d; margin-top: 15px"
+            >
+              Help / Report Issue
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Help Modal HTML -->
+    <div class="help-modal-overlay" id="helpModalOverlay">
+      <div class="help-modal-content">
+        <button class="help-close-btn" id="closeHelpModal">✕</button>
+        <h3>Need Help? Report an Issue.</h3>
+        <p
+          class="note"
+          style="color: #d9534f; font-weight: 500; margin-bottom: 15px"
+        >
+          Please provide as much detail as possible.
+        </p>
+        <form id="helpForm">
+          <!-- This block is for logged-in users -->
+          <div id="loggedInHelpInfo" style="display: none;">
+            <p style="margin-top: 0; margin-bottom: 8px;">You are reporting as:</p>
+            <strong id="helpUserRoll" style="font-size: 16px; color: var(--accent);"></strong>
+          </div>
+          
+          <!-- This block is for non-logged-in users -->
+          <div id="loggedOutHelpForm" style="display: none;">
+            <label for="help_roll">Your Roll No:</label>
+            <input
+              type="text"
+              id="help_roll"
+              placeholder="e.g., 25951A6606"
+              pattern="[0-9]{5}[Aa][0-9A-Z]{4,5}"
+            />
+            <label for="help_email">Your Email Address:</label>
+            <input
+              type="email"
+              id="help_email"
+              placeholder="e.g., your.email@provider.com"
+            />
+          </div>
+
+          <label for="help_problem">Describe your problem:</label>
+          <textarea
+            id="help_problem"
+            required
+            placeholder="e.g., The photo generator isn't working for my roll number..."
+            rows="5"
+          ></textarea>
+          <button type="submit" class="btn" style="width: 100%">
+            Submit Help Request
+          </button>
+        </form>
+        <div
+          id="helpMessage"
+          style="margin-top: 10px; min-height: 20px; font-weight: 500"
+        ></div>
+      </div>
+    </div>
+
+    <script type="module">
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-app.js";
+      import {
+        getDatabase,
+        ref,
+        set,
+        push,
+        get,
+      } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-database.js";
+      import {
+        getAuth,
+        signOut,
+      } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-auth.js";
+      // Analytics snippet you provided
+      import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-analytics.js";
+
+      // --- CONFIG: Firebase (from your snippet) ---
+      const firebaseConfig = {
+        apiKey: "AIzaSyCQJ9MLRUR4gSTOAewoLm9Vt9QgBNi4e7Q",
+        authDomain: "iare-lake-v2.firebaseapp.com",
+        databaseURL: "https://iare-lake-v2-default-rtdb.firebaseio.com",
+        projectId: "iare-lake-v2",
+        storageBucket: "iare-lake-v2.firebasestorage.app",
+        messagingSenderId: "287716328827",
+        appId: "1:287716328827:web:7bca5b46664ab481dd69de",
+        measurementId: "G-R69GJ67RHD"
+      };
+
+      const app = initializeApp(firebaseConfig);
+      const db = getDatabase(app);
+      const auth = getAuth(app);
+      const analytics = getAnalytics(app);
+
+      // --- If you want sheet fallback, set your CSV URL here (public or CORS-enabled) ---
+      // This URL has been updated with the one you provided.
+      const SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vShhU-9jmKqFELdaUJaZBkkpz7U-BiRVzzViGZ3VPRQh__6bj6V171tzgeZRK32cxMLPEGx8tBxzRfW/pub?output=csv";
+
+      // --- Global UI Elements ---
+      const G = (id) => document.getElementById(id);
+      const mainCard = G("mainCard"),
+        tabSignIn = G("tabSignIn"),
+        tabMain = G("tabMain"),
+        signInSection = G("signin"),
+        mainView = G("mainView"),
+        messages = G("messages"),
+        formSignIn = G("formSignIn"),
+        welcomeName = G("welcomeName"),
+        signOutBtn = G("signOutBtn"),
+        labGenerator = G("labGenerator"),
+        photoGenerator = G("photoGenerator"),
+        attendanceGenerator = G("attendanceGenerator"),
+        profileSection = G("profileSection"),
+        searchFriend = G("searchFriend"),
+        menuToggle = G("menuToggle"),
+        sidebarMenu = G("sidebarMenu"),
+        mobileOverlay = G("mobileOverlay"),
+        helpModalOverlay = G("helpModalOverlay"),
+        helpBtn = G("helpBtn"),
+        closeHelpModal = G("closeHelpModal"),
+        helpForm = G("helpForm"),
+        helpMessage = G("helpMessage"),
+        searchForm = G("searchForm"),
+        searchResult = G("searchResult"),
+        searchClear = G("searchClear"),
+        // NEW Elements for Name Search
+        searchNameForm = G("searchNameForm"),
+        searchNameResult = G("searchNameResult");
+
+      // --- Utilities ---
+      function showMsg(text, type = "success") {
+        messages.innerHTML = `<div style="color:${type === "error" ? "var(--danger)" : "var(--success)"}">${text}</div>`;
+        setTimeout(() => (messages.innerHTML = ""), 5000);
+      }
+
+      function s3PhotoFor(roll) {
+        return `https://iare-data.s3.ap-south-1.amazonaws.com/uploads/STUDENTS/${roll}/${roll}.jpg`;
+      }
+
+      function populateProfile(user) {
+        G("profileRoll").textContent = user.roll || "N/A";
+        G("profileName").textContent = user.name || "Not Set";
+        G("profileEmail").textContent = user.email || "Not available";
+        G("profilePhone").textContent = user.phone || "Not Set";
+        G("profileInsta").textContent = user.instagram || "Not Set";
+        G("profilePic").src = s3PhotoFor(user.roll);
+      }
+
+      // UPDATED: This function now renders Branch and Section in the search result
+      function showUserProfileInResult(user, source = "firebase") {
+        searchResult.innerHTML = `
+          <div class="profile-card" style="background:#fff;padding:16px;border-radius:8px;box-shadow:0 6px 18px rgba(0,0,0,0.06);max-width:520px;">
+            <div style="display:flex;gap:12px;align-items:center">
+              <img src="${s3PhotoFor(user.roll)}" onerror="this.outerHTML='<div class=\\'thumbPlaceholder\\' style=\\'width:96px;height:96px;border-radius:6px;\\'>No Img</div>'" style="width:96px;height:96px;object-fit:cover;border-radius:8px;border:2px solid var(--accent)"/>
+              <div>
+                <div style="font-weight:700;font-size:16px">${user.name || "Name not found"}</div>
+                <div style="margin-top:6px"><strong>Roll:</strong> ${user.roll}</div>
+                <div><strong>Email:</strong> ${user.email || "—"}</div>
+                <div><strong>Phone:</strong> ${user.phone || "—"}</div>
+                <div><strong>Instagram:</strong> ${user.instagram || "—"}</div>
+                <div><strong>Branch:</strong> ${user.branch || "—"}</div>
+                <div><strong>Section:</strong> ${user.section || "—"}</div>
+                <div style="margin-top:8px;font-size:12px;color:var(--muted)">Source: ${source}</div>
+              </div>
+            </div>
+          </div>
+        `;
+      }
+
+      // --- Views & navigation ---
+      function setupLoggedInView(user) {
+        mainCard.classList.add("logged-in");
+        welcomeName.textContent = user.name || user.roll || "Guest";
+        populateProfile(user);
+        [...document.getElementsByClassName("generator-link")].forEach(
+          (el) => (el.style.display = "flex"),
+        );
+        const searchLink = G("mobile-search-link");
+        if (searchLink) searchLink.style.display = "flex";
+        showTab("main");
+        showGenerator("labGenerator");
+      }
+
+      function setupLoggedOutView() {
+        mainCard.classList.remove("logged-in");
+        [...document.getElementsByClassName("generator-link")].forEach(
+          (el) => (el.style.display = "none"),
+        );
+        const searchLink = G("mobile-search-link");
+        if (searchLink) searchLink.style.display = "none";
+        showTab("signin");
+      }
+
+      // UPDATED: Checks localStorage instead of sessionStorage
+      function attemptShowMain() {
+        const stored = localStorage.getItem("iare_user");
+        if (stored) {
+          setupLoggedInView(JSON.parse(stored));
+        } else {
+          setupLoggedOutView();
+          // CHECK FOR ALERT Logic
+          if (!localStorage.getItem("has_seen_welcome_alert")) {
+            alert("Please create an account before login. If already have one can login directly...");
+            localStorage.setItem("has_seen_welcome_alert", "true");
+          }
+        }
+      }
+
+      window.showGenerator = function (sectionId) {
+        [
+          labGenerator,
+          photoGenerator,
+          attendanceGenerator,
+          profileSection,
+          searchFriend
+        ].forEach((sec) => (sec.style.display = "none"));
+        G(sectionId).style.display = "block";
+        document
+          .querySelectorAll(".generator-link")
+          .forEach((link) => link.classList.remove("active"));
+        const mobileLink = G(
+          `mobile-${sectionId.replace("Section", "-link").replace("Generator", "-link")}`,
+        );
+        if (mobileLink) mobileLink.classList.add("active");
+        closeMobileMenu();
+      };
+
+      function showTab(tabName) {
+        signInSection.style.display = "none";
+        mainView.style.display = "none";
+        [tabSignIn, tabMain].forEach((t) => t.classList.remove("active"));
+        if (tabName === "signin") {
+          tabSignIn.classList.add("active");
+          signInSection.style.display = "block";
+        }
+        if (tabName === "main") {
+          tabMain.classList.add("active");
+          mainView.style.display = "block";
+        }
+      }
+
+      // --- Event Listeners ---
+      tabSignIn.addEventListener("click", () => showTab("signin"));
+      tabMain.addEventListener("click", attemptShowMain);
+
+      formSignIn.addEventListener("submit", async (ev) => {
+        ev.preventDefault();
+        const roll = G("si_roll").value.trim().toUpperCase();
+        const pass = G("si_password").value;
+        if (!roll || !pass)
+          return showMsg("Please enter roll number and password", "error");
+        try {
+          const usersSnapshot = await get(ref(db, "users"));
+          if (!usersSnapshot.exists())
+            return showMsg("No registered users found.", "error");
+          const users = usersSnapshot.val();
+          let foundUser = Object.values(users).find((u) => u.roll === roll);
+          if (foundUser && pass === foundUser.password) {
+            const userData = {
+              email: foundUser.email,
+              roll: foundUser.roll,
+              instagram: foundUser.insta,
+              name: foundUser.name,
+              phone: foundUser.mobile,
+            };
+            // UPDATED: Uses localStorage for persistence
+            localStorage.setItem("iare_user", JSON.stringify(userData));
+            showMsg("Signed in successfully!", "success");
+            setTimeout(() => setupLoggedInView(userData), 700);
+          } else if (foundUser) {
+            showMsg("Incorrect password", "error");
+          } else {
+            showMsg("No account found with that roll number.", "error");
+          }
+        } catch (err) {
+          showMsg("Sign-in failed: " + err.message, "error");
+        }
+      });
+
+      signOutBtn.addEventListener("click", async () => {
+        // UPDATED: Clears localStorage
+        localStorage.removeItem("iare_user");
+        try {
+          await signOut(auth);
+        } catch (e) {}
+        setupLoggedOutView();
+      });
+
+      // --- Lab Generator ---
+      const labGenerateBtn = G("labGenerate"),
+        labOpen = G("labOpen"),
+        labCopy = G("labCopy");
+      labGenerateBtn.addEventListener("click", () => {
+        const usn = G("lab_usn").value.trim().toUpperCase(),
+          subject = G("lab_subject").value,
+          week = G("lab_week").value;
+        if (!usn || !subject || !week)
+          return showMsg("Please fill all fields.", "error");
+        if (!/^[0-9]{5}[Aa][0-9A-Z]{4,5}$/.test(usn))
+          return showMsg("Invalid Roll Number format.", "error");
+        const url = `https://iare-data.s3.ap-south-1.amazonaws.com/uploads/STUDENTS/${usn}/LAB/SEM1/${subject}/${usn}_week${week}.pdf`;
+        labOpen.style.display = "inline-block";
+        labCopy.style.display = "inline-block";
+        labOpen.onclick = () => window.open(url, "_blank");
+        labCopy.onclick = () =>
+          navigator.clipboard.writeText(url).then(() => {
+            labCopy.textContent = "Copied!";
+            setTimeout(() => (labCopy.textContent = "Copy"), 1500);
+          });
+        showMsg("Link generated successfully.", "success");
+      });
+
+      // --- CORRECTED Photo Generator ---
+      const photoForm = G("photoForm"),
+        photoTableWrap = G("photoTableWrap"),
+        photoClearBtn = G("photoClear");
+
+      function nextSuffix(suffix) {
+        const NUMS = "0123456789";
+        const ALPHA = "ABCDEFGHJKLMNPQRSTUVWXYZ"; // 'I' and 'O' are excluded
+
+        let c1 = suffix[0];
+        let c2 = suffix[1];
+
+        let c2_is_num = NUMS.includes(c2);
+        let c1_is_num = NUMS.includes(c1);
+
+        // Increment second character
+        let c2_map = c2_is_num ? NUMS : ALPHA;
+        let c2_idx = c2_map.indexOf(c2);
+
+        if (c2_idx < c2_map.length - 1) {
+          return c1 + c2_map[c2_idx + 1];
+        } else {
+          // Carry over to first character
+          c2 = c2_map[0]; // Reset second char
+
+          let c1_map = c1_is_num ? NUMS : ALPHA;
+          let c1_idx = c1_map.indexOf(c1);
+
+          if (c1_idx < c1_map.length - 1) {
+            return c1_map[c1_idx + 1] + c2;
+          } else {
+            return null; // Overflow
+          }
+        }
+      }
+
+      photoForm.addEventListener("submit", function (ev) {
+        ev.preventDefault();
+        photoTableWrap.innerHTML = "";
+        const startRaw = G("photo_start").value.toUpperCase();
+        const endRaw = G("photo_end").value.toUpperCase();
+        if (
+          startRaw.length !== endRaw.length ||
+          startRaw.slice(0, -2) !== endRaw.slice(0, -2)
+        ) {
+          return showMsg(
+            "Start and End roll numbers must share the same prefix.",
+            "error",
+          );
+        }
+        let rows = [],
+          curSuffix = startRaw.slice(-2);
+        const endSuffix = endRaw.slice(-2),
+          prefix = startRaw.slice(0, -2);
+
+        const compareSuffixes = (s1, s2) => {
+          const map = "0123456789ABCDEFGHJKLMNPQRSTUVWXYZ";
+          const val1 = map.indexOf(s1[0]) * map.length + map.indexOf(s1[1]);
+          const val2 = map.indexOf(s2[0]) * map.length + map.indexOf(s2[1]);
+          return val1 - val2;
+        };
+
+        while (
+          curSuffix &&
+          compareSuffixes(curSuffix, endSuffix) <= 0 &&
+          rows.length < 5000
+        ) {
+          rows.push(prefix + curSuffix);
+          curSuffix = nextSuffix(curSuffix);
+        }
+
+        if (rows.length > 0) {
+          let tableHTML = `<table class="att-results-table"><thead><tr><th>USN</th><th>Photo</th><th>Open</th></tr></thead><tbody>`;
+          rows.forEach((r) => {
+            const url = `https://iare-data.s3.ap-south-1.amazonaws.com/uploads/STUDENTS/${r}/${r}.jpg`;
+            tableHTML += `<tr><td>${r}</td><td><img src="${url}" class="thumb" loading="lazy" onerror="this.outerHTML='<div class=\\'thumbPlaceholder\\'>No Img</div>'"></td><td><button onclick="window.open('${url}','_blank')" class="link-btn" style="padding:6px 10px; font-size:12px;">Open</button></td></tr>`;
+          });
+          photoTableWrap.innerHTML = tableHTML + `</tbody></table>`;
+          showMsg(`Generated ${rows.length} photo links.`, "success");
+        } else {
+          showMsg(
+            "No valid roll numbers found in the specified range.",
+            "error",
+          );
+        }
+      });
+      photoClearBtn.addEventListener("click", () => {
+        photoTableWrap.innerHTML = "";
+        photoForm.reset();
+      });
+
+      // --- Attendance Guide ---
+      const attNumSubjects = G("att_num_subjects"),
+        attRowsContainer = G("att_rows_container");
+      function generateAttRows(n) {
+        attRowsContainer.innerHTML = "";
+        for (let i = 1; i <= n; i++) {
+          attRowsContainer.innerHTML += `<div class="att-row"><div><label>Subject ${i} Name</label><input type="text" class="att-sub-name" placeholder="Subject ${i}" required></div><div><label>Total Classes</label><input type="number" class="att-sub-total" placeholder="Held" min="1" required></div><div><label>Classes Attended</label><input type="number" class="att-sub-present" placeholder="Present" min="0" required></div></div>`;
+        }
+      }
+      generateAttRows(5);
+      attNumSubjects.addEventListener("change", (e) =>
+        generateAttRows(parseInt(e.target.value)),
+      );
+      G("attGuideMe").addEventListener("click", () => {
+        let grandTotal = 0,
+          grandPresent = 0,
+          resultsHTML = "";
+        let hasError = false;
+        attRowsContainer.querySelectorAll(".att-row").forEach((row, i) => {
+          const name =
+              row.querySelector(".att-sub-name").value.trim() ||
+              `Subject ${i + 1}`,
+            total = parseInt(row.querySelector(".att-sub-total").value),
+            present = parseInt(row.querySelector(".att-sub-present").value);
+          if (
+            isNaN(total) ||
+            isNaN(present) ||
+            total < 1 ||
+            present < 0 ||
+            present > total
+          ) {
+            if (!hasError) showMsg(`Invalid data for ${name}.`, "error");
+            hasError = true;
+            return;
+          }
+          grandTotal += total;
+          grandPresent += present;
+          const currentPercent = (present / total) * 100;
+          let statusHtml, guideHtml;
+          if (currentPercent >= 75) {
+            statusHtml = '<span class="status-badge status-ok">On Track</span>';
+            const buffer = Math.floor((present - 0.75 * total) / 0.75);
+            guideHtml =
+              buffer > 0
+                ? `Can miss ${buffer} class(es).`
+                : "Maintained on target.";
+          } else {
+            statusHtml = '<span class="status-badge status-danger">Low</span>';
+            const needed = Math.ceil((0.75 * total - present) / 0.25);
+            guideHtml = `Attend next <strong>${needed}</strong> class(es).`;
+          }
+          resultsHTML += `<tr><td><strong>${name}</strong></td><td>${currentPercent.toFixed(1)}%</td><td>${statusHtml}</td><td>${guideHtml}</td></tr>`;
+        });
+        if (hasError) return;
+        G("attResultsBody").innerHTML = resultsHTML;
+        G("attResultsArea").style.display = "block";
+        if (parseInt(attNumSubjects.value) > 1 && grandTotal > 0) {
+          const overallPercent = (grandPresent / grandTotal) * 100;
+          const overallStats = G("attOverallStats");
+          overallStats.innerHTML = `Overall Attendance: <strong>${overallPercent.toFixed(2)}%</strong>`;
+          overallStats.style.display = "block";
+          overallStats.style.background =
+            overallPercent >= 75 ? "#d4edda" : "#f8d7da";
+          overallStats.style.color =
+            overallPercent >= 75 ? "var(--success)" : "var(--danger)";
+        }
+        showMsg("Attendance guide generated.", "success");
+      });
+
+      // --- Search Friend logic ---
+      async function findUserInFirebase(roll) {
+        try {
+          const usersSnapshot = await get(ref(db, "users"));
+          if (!usersSnapshot.exists()) return null;
+          const users = usersSnapshot.val();
+          const found = Object.values(users).find((u) => (u.roll || "").toUpperCase() === roll);
+          if (!found) return null;
+          return {
+            roll: (found.roll || "").toUpperCase(),
+            name: found.name || found.fullName || found.displayName || "",
+            email: found.email || "",
+            phone: found.mobile || found.phone || "",
+            instagram: found.insta || found.instagram || ""
+          };
+        } catch (e) {
+          console.error("Firebase lookup failed:", e);
+          return null;
+        }
+      }
+
+      // NEW: Function to find matching names in Sheet CSV
+      async function findNamesInSheetCSV(nameQuery) {
+        if (!SHEET_CSV_URL) return [];
+        try {
+          const res = await fetch(SHEET_CSV_URL);
+          if (!res.ok) return [];
+          const text = await res.text();
+          const lines = text.split(/\r?\n/).filter(Boolean);
+          if (lines.length === 0) return [];
+          const header = lines[0].split(",").map(h => h.trim().toLowerCase());
+          const rollIdx = header.findIndex(h => /roll|usn/.test(h));
+          const nameIdx = header.findIndex(h => /name/.test(h));
+
+          if (rollIdx === -1 || nameIdx === -1) return [];
+
+          const matches = [];
+          const q = nameQuery.toLowerCase();
+          
+          // Loop through lines (skip header)
+          for (let i = 1; i < lines.length; i++) {
+            const cols = lines[i].split(",").map(c => c.trim());
+            if (cols[nameIdx] && cols[nameIdx].toLowerCase().includes(q)) {
+                matches.push({
+                    name: cols[nameIdx],
+                    roll: cols[rollIdx] || "N/A"
+                });
+            }
+          }
+          return matches;
+        } catch (e) {
+          console.error("Sheet Name Search failed:", e);
+          return [];
+        }
+      }
+
+      async function findUserInSheetCSV(roll) {
+        if (!SHEET_CSV_URL) return null;
+        try {
+          const res = await fetch(SHEET_CSV_URL);
+          if (!res.ok) return null;
+          const text = await res.text();
+          const lines = text.split(/\r?\n/).filter(Boolean);
+          if (lines.length === 0) return null;
+          const header = lines[0].split(",").map(h => h.trim().toLowerCase());
+          const rollIdx = header.findIndex(h => /roll|usn/.test(h));
+          const nameIdx = header.findIndex(h => /name/.test(h));
+          const emailIdx = header.findIndex(h => /email/.test(h));
+          const phoneIdx = header.findIndex(h => /phone|mobile/.test(h));
+          const instaIdx = header.findIndex(h => /insta/.test(h));
+          const branchIdx = header.findIndex(h => /branch|dept/.test(h));
+          const sectionIdx = header.findIndex(h => /section|sec/.test(h));
+
+          for (let i = 1; i < lines.length; i++) {
+            const cols = lines[i].split(",").map(c => c.trim());
+            if (!cols[rollIdx]) continue;
+            if ((cols[rollIdx].toUpperCase() || "") === roll) {
+              return {
+                roll: cols[rollIdx].toUpperCase(),
+                name: (cols[nameIdx] || "").trim(),
+                email: (cols[emailIdx] || "").trim(),
+                phone: (cols[phoneIdx] || "").trim(),
+                instagram: (cols[instaIdx] || "").trim(),
+                branch: (cols[branchIdx] || "").trim(),
+                section: (cols[sectionIdx] || "").trim()
+              };
+            }
+          }
+          return null;
+        } catch (e) {
+          console.error("Sheet CSV lookup failed:", e);
+          return null;
+        }
+      }
+
+      async function searchRoll(roll) {
+        roll = (roll || "").trim().toUpperCase();
+        if (!/^[0-9]{5}[Aa][0-9A-Z]{4,5}$/.test(roll)) {
+          searchResult.innerHTML = `<div style="color:var(--danger)">Invalid roll format.</div>`;
+          return;
+        }
+
+        searchResult.innerHTML = `<div style="color:var(--muted)">Searching...</div>`;
+
+        // 1) Search Firebase first
+        const fbUser = await findUserInFirebase(roll);
+
+        if (fbUser) {
+            // User found in Firebase, now enrich with sheet data
+            const sheetData = await findUserInSheetCSV(roll);
+            if (sheetData) {
+                fbUser.branch = sheetData.branch;
+                fbUser.section = sheetData.section;
+            }
+            showUserProfileInResult(fbUser, "Firebase");
+            return;
+        }
+
+        // 2) Not in Firebase, try the Sheet CSV fallback
+        if (SHEET_CSV_URL) {
+            const sheetUser = await findUserInSheetCSV(roll);
+            if (sheetUser) {
+                showUserProfileInResult(sheetUser, "Sheets");
+                return;
+            }
+        }
+
+        // 3) Not found anywhere
+        searchResult.innerHTML = `<div style="color:var(--danger)">Not found in Firebase or sheet.</div>`;
+      }
+
+      // NEW: Event listener for Name Search
+      searchNameForm.addEventListener("submit", async (ev) => {
+        ev.preventDefault();
+        const nameQuery = G("search_name_input").value.trim();
+        if(nameQuery.length < 3) {
+            searchNameResult.innerHTML = `<div style="color:var(--danger)">Please enter at least 3 characters.</div>`;
+            return;
+        }
+        
+        searchNameResult.innerHTML = `<div style="color:var(--muted)">Scanning Sheet...</div>`;
+        
+        const results = await findNamesInSheetCSV(nameQuery);
+        
+        if(results.length === 0) {
+            searchNameResult.innerHTML = `<div style="color:var(--danger)">No matches found in Google Sheet.</div>`;
+        } else {
+            // Build Table
+            let html = `<table class="att-results-table" style="font-size:13px;">
+                <thead><tr><th style="width:40px">S.No</th><th>Matching Name</th><th>Roll No</th><th>Action</th></tr></thead>
+                <tbody>`;
+            
+            results.forEach((res, idx) => {
+                html += `<tr>
+                    <td>${idx + 1}</td>
+                    <td>${res.name}</td>
+                    <td style="font-family:monospace;font-weight:600">${res.roll}</td>
+                    <td><button type="button" class="copy-btn" style="padding:4px 8px;font-size:11px;" onclick="navigator.clipboard.writeText('${res.roll}');alert('Copied ${res.roll}');">Copy</button></td>
+                </tr>`;
+            });
+            
+            html += `</tbody></table>`;
+            html += `<div style="margin-top:8px;font-size:11px;color:var(--muted);text-align:right;">Source: Google Sheet</div>`;
+            searchNameResult.innerHTML = html;
+        }
+      });
+
+
+      // Hook up search form
+      searchForm.addEventListener("submit", (ev) => {
+        ev.preventDefault();
+        const r = G("search_roll").value.trim().toUpperCase();
+        if (!r) return;
+        searchRoll(r);
+      });
+      searchClear.addEventListener("click", () => {
+        G("search_roll").value = "";
+        searchResult.innerHTML = "";
+      });
+
+      // --- Help Modal & Mobile Menu ---
+      function closeMobileMenu() {
+        sidebarMenu.classList.remove("sidebar-open");
+        mobileOverlay.classList.remove("active");
+      }
+      
+      // MODIFIED: helpBtn listener uses localStorage
+      helpBtn.addEventListener("click", () => {
+        const loggedInUser = localStorage.getItem("iare_user");
+        const loggedInHelpInfo = G('loggedInHelpInfo');
+        const loggedOutHelpForm = G('loggedOutHelpForm');
+        const helpRollInput = G('help_roll');
+        const helpEmailInput = G('help_email');
+
+        if (loggedInUser) {
+          const user = JSON.parse(loggedInUser);
+          G('helpUserRoll').textContent = user.roll;
+          loggedInHelpInfo.style.display = 'block';
+          loggedOutHelpForm.style.display = 'none';
+          helpRollInput.required = false;
+          helpEmailInput.required = false;
+        } else {
+          loggedInHelpInfo.style.display = 'none';
+          loggedOutHelpForm.style.display = 'block';
+          helpRollInput.required = true;
+          helpEmailInput.required = true;
+        }
+        helpModalOverlay.style.display = "flex";
+      });
+
+      const closeHelp = () => {
+        helpModalOverlay.style.display = "none";
+        helpMessage.innerHTML = '';
+        helpForm.reset();
+      };
+      closeHelpModal.addEventListener("click", closeHelp);
+      helpModalOverlay.addEventListener("click", (e) => {
+        if (e.target === helpModalOverlay) closeHelp();
+      });
+
+      // MODIFIED: helpForm submit listener uses localStorage
+      helpForm.addEventListener("submit", async (ev) => {
+        ev.preventDefault();
+        const problem = G("help_problem").value;
+        if (!problem) return;
+        
+        let identifier;
+        const loggedInUser = localStorage.getItem("iare_user");
+
+        if (loggedInUser) {
+          identifier = JSON.parse(loggedInUser).roll;
+        } else {
+          const roll = G("help_roll").value.trim().toUpperCase();
+          const email = G("help_email").value.trim();
+          if (!roll || !email) return; // Should be caught by 'required' but an extra check
+          identifier = `Roll: ${roll}, Email: ${email}`;
+        }
+        
+        try {
+          await set(push(ref(db, "helpRequests")), {
+            identifier,
+            problem,
+            timestamp: Date.now(),
+            status: "pending",
+          });
+          helpMessage.innerHTML =
+            '<div style="color:green">Request submitted! We will look into it.</div>';
+          helpForm.reset();
+          setTimeout(closeHelp, 2500);
+        } catch (e) {
+          helpMessage.innerHTML =
+            '<div style="color:red">Failed to submit request. Please try again.</div>';
+        }
+      });
+      
+      menuToggle.addEventListener("click", () => {
+        sidebarMenu.classList.add("sidebar-open");
+        mobileOverlay.classList.add("active");
+      });
+      mobileOverlay.addEventListener("click", closeMobileMenu);
+
+      // --- Initial Load ---
+      window.addEventListener("load", attemptShowMain);
+    </script>
+  </body>
+</html>
